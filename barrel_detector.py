@@ -62,7 +62,7 @@ def erode_dilate(mask,e_kernel = 2,d_kernel = 10,e_iter = 5 ,d_iter = 5):
     return img_dilation
     
 def get_contour(mask):
-    new_mask = erode_dilate(mask,2,4,2,4) #2,5,2,5
+    new_mask = erode_dilate(mask,2,4,2,5) #2,5,2,5
     contours, hiearchy = cv2.findContours(new_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     return contours
 
