@@ -98,7 +98,7 @@ def process_props(contours):
         Ars = -prop_sort[:,0]
         idxs = Ars.argsort()
     sorted_prop = prop_sort[idxs]
-    top_area = sorted_prop[:3] 
+    top_area = sorted_prop[:2] 
     result = []
     bboxs = []
     #max_area = top_area[0][0]
