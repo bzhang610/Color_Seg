@@ -15,7 +15,7 @@ class BarrelDetector():
         Initilize your blue barrel detector with the attributes you need
         eg. parameters of your classifier
         '''
-    def segment_image(self, img,mode = 1):
+    def segment_image(self, img,mode = 0):
         '''
         Calculate the segmented image using a classifier
         eg. Single Gaussian, Gaussian Mixture, or Logistic Regression
@@ -33,14 +33,20 @@ class BarrelDetector():
         x[:,:3] = img_flat
         x[:,3:6] = img_flat2
         w1 = np.array([[-0.08936352],[-0.3451944 ],[-0.91256014],[ 1.63474669],[-0.40552046],[-0.39398803],[ 0.362268]])
-        w2 = np.array([[ 0.04176607],[ 0.03761931],[-0.93647226],[ 1.89223607],[-0.76342823],[-1.21911078],[ 0.35824075]])
+        w2 = np.array([[-0.0067286 ]
+ ,[-0.08391962]
+ ,[-0.9366656 ]
+ ,[ 1.85043287]
+ ,[-0.7109699 ]
+ ,[-1.09063044]
+ ,[ 0.35853911]])
         weights = [w1,w2]
         w = weights[mode]
         result = np.dot(x,w)
         y_pred = (result>=0)
         mask_img = y_pred.reshape(img.shape[0],img.shape[1]) # reshape back to 2D image dimensions
-        
-        return mask_img
+        new_mask = mask_img.astype('uint8')
+        return new_mask
 
     def get_bounding_box(self, img):
         '''
@@ -53,8 +59,7 @@ class BarrelDetector():
         where (x1, y1) and (x2, y2) are the top left and bottom right coordinate respectively. The order of bounding boxes in the list is from left to right in the image.
         '''
         mask_img = self.segment_image(img,1)
-        new_mask = mask_img.astype('uint8')
-        contours = get_contour(new_mask)
+        contours = get_contour(mask_img)
         cprop, boxes = process_props(contours)
         return boxes
     
@@ -66,7 +71,7 @@ def erode_dilate(mask,e_kernel = 2,d_kernel = 10,e_iter = 5 ,d_iter = 5):
     return img_dilation
     
 def get_contour(mask):
-    new_mask = erode_dilate(mask,2,3,2,2)
+    new_mask = erode_dilate(mask,2,4,2,4)
     contours, hiearchy = cv2.findContours(new_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     return contours
 
@@ -102,18 +107,19 @@ def process_props(contours):
         Ars = -prop_sort[:,0]
         idxs = Ars.argsort()
     sorted_prop = prop_sort[idxs]
-    top5_area = sorted_prop[:5] 
+    top_area = sorted_prop[:3] 
     result = []
     bboxs = []
-    max_area = top5_area[0][0]
-    for i in range(top5_area.shape[0]):
-        target = top5_area[i]
+    #max_area = top_area[0][0]
+    for i in range(top_area.shape[0]):
+        target = top_area[i]
         orig_idx = int(target[3])
-        if target[0] >= 0.3*max_area and target[1] >= 0.7 and target[2] >= 0.93: #area percentage >0.7 and l2 >= 0.93
+        if target[1] >= 0.8 and target[2] >= 0.93: #area percentage >0.7 and l2 >= 0.93
             result.append(target)
             y1,x1,y2,x2 = all_props[orig_idx][0].bbox
             bboxs.append([x1,y1,x2,y2])
     return result,bboxs    
+
 
 
 
