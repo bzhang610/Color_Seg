@@ -63,7 +63,7 @@ if __name__ == '__main__':
 
 #Display results:
 #(1) Segmented images
-mask_img = my_detector.segment_image(img)
+#mask_img = my_detector.segment_image(img)
 #(2) Barrel bounding box
 #boxes = my_detector.get_bounding_box(img)
 #The autograder checks your answers to the functions segment_image() and get_bounding_box()
