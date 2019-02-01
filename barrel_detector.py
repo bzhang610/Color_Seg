@@ -114,7 +114,7 @@ def process_props(contours):
     for i in range(top_area.shape[0]):
         target = top_area[i]
         orig_idx = int(target[3])
-        if target[1] >= 0.8 and target[2] >= 0.93: #area percentage >0.7 and l2 >= 0.93
+        if target[1] >= 0.75 and target[2] >= 0.94: #area percentage >0.7 and l2 >= 0.93
             result.append(target)
             y1,x1,y2,x2 = all_props[orig_idx][0].bbox
             bboxs.append([x1,y1,x2,y2])
