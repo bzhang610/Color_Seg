@@ -46,8 +46,68 @@ class BarrelDetector():
         boxes - a list of lists of bounding boxes. Each nested list is a bounding box in the form of [x1, y1, x2, y2] 
         where (x1, y1) and (x2, y2) are the top left and bottom right coordinate respectively. The order of bounding boxes in the list is from left to right in the image.
         '''
+        mask_img = self.segment_img(img)
+        contours = get_contour(mask_img)
+        cprop, boxes = process_props(contours)
         return boxes
     
+def erode_dilate(mask,kernel_size = 5,iterate = 1):
+    kernel = np.ones((kernel_size,kernel_size), np.uint8) 
+    img_erosion = cv2.erode(mask, kernel, iterations=iterate) 
+    img_dilation = cv2.dilate(img_erosion, kernel, iterations=iterate)
+    return img_dilation
+    
+def get_contour(mask):
+    typed_mask = mask.astype('uint8')
+    new_mask = erode_dilate(typed_mask,10,1)
+    contours, hiearchy = cv2.findContours(typed_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    return contours
+
+def normalized_l2(prop):
+    x1,y1,x2,y2 = prop.bbox
+    b = x2 - x1
+    h = y2 -y1
+    loc_x,loc_y = prop.local_centroid
+    bb_x = b/2
+    bb_y = h/2
+    l2_dist= ((loc_x-bb_x)/b)**2+((loc_y-bb_y)/h)**2 #normalized
+    res = 1-np.sqrt(l2_dist)
+    return res
+def process_props(contours):
+    #get all props from contours
+    all_props = []
+    for c in contours:
+        cc = cv2.drawContours(np.zeros([800,1200]), [c], 0, (255,0,0), 2)
+        c_region = cc.astype('int32')
+        props = regionprops(c_region)
+        all_props.append(props)
+    # sort props
+    prop_sort = np.zeros([len(contours),4])
+    for i in range(len(contours)):
+        c_prop = all_props[i][0]
+        area = c_prop.filled_area
+        r_area = c_prop.filled_area/c_prop.bbox_area
+        n_L2 = normalized_l2(c_prop)
+        prop_sort[i,0] = area
+        prop_sort[i,1] = r_area
+        prop_sort[i,2] = n_L2
+        prop_sort[i,3] = i 
+        Ars = -prop_sort[:,0]
+        idxs = Ars.argsort()
+    sorted_prop = prop_sort[idxs]
+    top5_area = sorted_prop[:5] 
+    result = []
+    bboxs = []
+    max_area = top5_area[0][0]
+    for i in range(top5_area.shape[0]):
+        target = top5_area[i]
+        orig_idx = int(target[3])
+        if target[0] >= 0.3*max_area and target[1] >= 0.7 and target[2] >= 0.93: #area percentage >0.7 and l2 >= 0.93
+            result.append(target)
+            bboxs.append(all_props[orig_idx][0].bbox)
+    return result,bboxs    
+
+
 
 
 if __name__ == '__main__':
