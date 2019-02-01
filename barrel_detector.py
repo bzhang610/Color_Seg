@@ -8,13 +8,14 @@ from skimage.measure import label, regionprops
 import numpy as np
 
 
+
 class BarrelDetector():
     def __init__(self):
         '''
         Initilize your blue barrel detector with the attributes you need
         eg. parameters of your classifier
         '''
-    def segment_image(self, img):
+    def segment_image(self, img,mode = 0):
         '''
         Calculate the segmented image using a classifier
         eg. Single Gaussian, Gaussian Mixture, or Logistic Regression
@@ -31,13 +32,10 @@ class BarrelDetector():
         img_flat2 = img.reshape(pixel_len,3)    
         x[:,:3] = img_flat
         x[:,3:6] = img_flat2
-        w = np.array([[-0.11370636]
- ,[-0.33010847]
- ,[-0.83238582]
- ,[ 1.87775957]
- ,[-0.45911628]
- ,[-0.68440005]
- ,[ 0.36059032]])
+        w1 = np.array([[-0.08936352],[-0.3451944 ],[-0.91256014],[ 1.63474669],[-0.40552046],[-0.39398803],[ 0.362268]])
+        w2 = np.array([[ 0.04176607],[ 0.03761931],[-0.93647226],[ 1.89223607],[-0.76342823],[-1.21911078],[ 0.35824075]])
+        weights = [w1,w2]
+        w = weights[mode]
         result = np.dot(x,w)
         y_pred = (result>=0)
         mask_img = y_pred.reshape(img.shape[0],img.shape[1]) # reshape back to 2D image dimensions
@@ -54,7 +52,7 @@ class BarrelDetector():
         boxes - a list of lists of bounding boxes. Each nested list is a bounding box in the form of [x1, y1, x2, y2] 
         where (x1, y1) and (x2, y2) are the top left and bottom right coordinate respectively. The order of bounding boxes in the list is from left to right in the image.
         '''
-        mask_img = self.segment_image(img)
+        mask_img = self.segment_image(img,1)
         contours = get_contour(mask_img)
         cprop, boxes = process_props(contours)
         return boxes
@@ -112,8 +110,11 @@ def process_props(contours):
         orig_idx = int(target[3])
         if target[0] >= 0.3*max_area and target[1] >= 0.7 and target[2] >= 0.93: #area percentage >0.7 and l2 >= 0.93
             result.append(target)
-            bboxs.append(list(all_props[orig_idx][0].bbox))
+            y1,x1,y2,x2 = all_props[orig_idx][0].bbox
+            bboxs.append([x1,y1,x2,y2])
     return result,bboxs    
+
+
 
 if __name__ == '__main__':
     folder = "trainset"
