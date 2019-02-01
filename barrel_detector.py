@@ -15,7 +15,7 @@ class BarrelDetector():
         Initilize your blue barrel detector with the attributes you need
         eg. parameters of your classifier
         '''
-    def segment_image(self, img,mode = 1):
+    def segment_image(self, img):
         '''
         Calculate the segmented image using a classifier
         eg. Single Gaussian, Gaussian Mixture, or Logistic Regression
@@ -32,16 +32,7 @@ class BarrelDetector():
         img_flat2 = img.reshape(pixel_len,3)    
         x[:,:3] = img_flat
         x[:,3:6] = img_flat2
-        w1 = np.array([[-0.08936352],[-0.3451944 ],[-0.91256014],[ 1.63474669],[-0.40552046],[-0.39398803],[ 0.362268]])
-        w2 = np.array([[-0.0067286 ]
- ,[-0.08391962]
- ,[-0.9366656 ]
- ,[ 1.85043287]
- ,[-0.7109699 ]
- ,[-1.09063044]
- ,[ 0.35853911]])
-        weights = [w1,w2]
-        w = weights[mode]
+        w = np.array([[-0.0067286 ],[-0.08391962],[-0.9366656 ],[ 1.85043287],[-0.7109699 ],[-1.09063044],[ 0.35853911]])
         result = np.dot(x,w)
         y_pred = (result>=0)
         mask_img = y_pred.reshape(img.shape[0],img.shape[1]) # reshape back to 2D image dimensions
@@ -58,7 +49,7 @@ class BarrelDetector():
         boxes - a list of lists of bounding boxes. Each nested list is a bounding box in the form of [x1, y1, x2, y2] 
         where (x1, y1) and (x2, y2) are the top left and bottom right coordinate respectively. The order of bounding boxes in the list is from left to right in the image.
         '''
-        mask_img = self.segment_image(img,1)
+        mask_img = self.segment_image(img)
         contours = get_contour(mask_img)
         cprop, boxes = process_props(contours)
         return boxes
@@ -71,7 +62,7 @@ def erode_dilate(mask,e_kernel = 2,d_kernel = 10,e_iter = 5 ,d_iter = 5):
     return img_dilation
     
 def get_contour(mask):
-    new_mask = erode_dilate(mask,2,6,2,5) #2,5,2,5
+    new_mask = erode_dilate(mask,3,6,2,5) #2,5,2,5
     contours, hiearchy = cv2.findContours(new_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     return contours
 
