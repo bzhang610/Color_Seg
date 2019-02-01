@@ -7,6 +7,7 @@ import os, cv2
 from skimage.measure import label, regionprops
 import numpy as np
 
+
 class BarrelDetector():
     def __init__(self):
         '''
@@ -30,17 +31,18 @@ class BarrelDetector():
         img_flat2 = img.reshape(pixel_len,3)    
         x[:,:3] = img_flat
         x[:,3:6] = img_flat2
-        w = np.array([[-0.08936352]
- ,[-0.3451944 ]
- ,[-0.91256014]
- ,[ 1.63474669]
- ,[-0.40552046]
- ,[-0.39398803]
- ,[ 0.362268  ]])
+        w = np.array([[-0.11370636]
+ ,[-0.33010847]
+ ,[-0.83238582]
+ ,[ 1.87775957]
+ ,[-0.45911628]
+ ,[-0.68440005]
+ ,[ 0.36059032]])
         result = np.dot(x,w)
-        y_pred = (result>=0) * 2 - 1
+        y_pred = (result>=0)
         mask_img = y_pred.reshape(img.shape[0],img.shape[1]) # reshape back to 2D image dimensions
-        return mask_img
+        new_mask = mask_img.astype('uint8')
+        return new_mask
 
     def get_bounding_box(self, img):
         '''
@@ -57,16 +59,16 @@ class BarrelDetector():
         cprop, boxes = process_props(contours)
         return boxes
     
-def erode_dilate(mask,kernel_size = 5,iterate = 1):
-    kernel = np.ones((kernel_size,kernel_size), np.uint8) 
-    img_erosion = cv2.erode(mask, kernel, iterations=iterate) 
-    img_dilation = cv2.dilate(img_erosion, kernel, iterations=iterate)
+def erode_dilate(mask,e_kernel = 2,d_kernel = 10,e_iter = 5 ,d_iter = 5):
+    kernel_e = np.ones((e_kernel,e_kernel), np.uint8)
+    kernel_d = np.ones((d_kernel,d_kernel), np.uint8)
+    img_erosion = cv2.erode(mask, kernel_e, iterations = e_iter) 
+    img_dilation = cv2.dilate(img_erosion, kernel_d, iterations = d_iter)
     return img_dilation
     
 def get_contour(mask):
-    typed_mask = mask.astype('uint8')
-    new_mask = erode_dilate(typed_mask,10,1)
-    contours, hiearchy = cv2.findContours(typed_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    new_mask = erode_dilate(mask)
+    contours, hiearchy = cv2.findContours(new_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     return contours
 
 def normalized_l2(prop):
@@ -112,9 +114,6 @@ def process_props(contours):
             result.append(target)
             bboxs.append(list(all_props[orig_idx][0].bbox))
     return result,bboxs    
-
-
-
 
 if __name__ == '__main__':
     folder = "trainset"
