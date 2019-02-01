@@ -15,7 +15,7 @@ class BarrelDetector():
         Initilize your blue barrel detector with the attributes you need
         eg. parameters of your classifier
         '''
-    def segment_image(self, img,mode = 0):
+    def segment_image(self, img,mode = 1):
         '''
         Calculate the segmented image using a classifier
         eg. Single Gaussian, Gaussian Mixture, or Logistic Regression
