@@ -39,8 +39,8 @@ class BarrelDetector():
         result = np.dot(x,w)
         y_pred = (result>=0)
         mask_img = y_pred.reshape(img.shape[0],img.shape[1]) # reshape back to 2D image dimensions
-        new_mask = mask_img.astype('uint8')
-        return new_mask
+        
+        return mask_img
 
     def get_bounding_box(self, img):
         '''
@@ -53,7 +53,8 @@ class BarrelDetector():
         where (x1, y1) and (x2, y2) are the top left and bottom right coordinate respectively. The order of bounding boxes in the list is from left to right in the image.
         '''
         mask_img = self.segment_image(img,1)
-        contours = get_contour(mask_img)
+        new_mask = mask_img.astype('uint8')
+        contours = get_contour(new_mask)
         cprop, boxes = process_props(contours)
         return boxes
     
