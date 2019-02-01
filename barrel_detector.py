@@ -30,7 +30,13 @@ class BarrelDetector():
         img_flat2 = img.reshape(pixel_len,3)    
         x[:,:3] = img_flat
         x[:,3:6] = img_flat2
-        w = np.array([[ 0.04176607],[ 0.03761931],[-0.93647226],[ 1.89223607],[-0.76342823],[-1.21911078],[ 0.35824075]])
+        w = np.array([[-0.08936352]
+ ,[-0.3451944 ]
+ ,[-0.91256014]
+ ,[ 1.63474669]
+ ,[-0.40552046]
+ ,[-0.39398803]
+ ,[ 0.362268  ]])
         result = np.dot(x,w)
         y_pred = (result>=0) * 2 - 1
         mask_img = y_pred.reshape(img.shape[0],img.shape[1]) # reshape back to 2D image dimensions
