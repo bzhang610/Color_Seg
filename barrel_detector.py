@@ -15,7 +15,7 @@ class BarrelDetector():
         Initilize your blue barrel detector with the attributes you need
         eg. parameters of your classifier
         '''
-    def segment_image(self, img,mode = 0):
+    def segment_image(self, img,mode = 1):
         '''
         Calculate the segmented image using a classifier
         eg. Single Gaussian, Gaussian Mixture, or Logistic Regression
@@ -71,7 +71,7 @@ def erode_dilate(mask,e_kernel = 2,d_kernel = 10,e_iter = 5 ,d_iter = 5):
     return img_dilation
     
 def get_contour(mask):
-    new_mask = erode_dilate(mask,2,4,2,4)
+    new_mask = erode_dilate(mask,2,3,2,5)
     contours, hiearchy = cv2.findContours(new_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     return contours
 
