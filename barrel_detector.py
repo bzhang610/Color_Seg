@@ -46,7 +46,7 @@ class BarrelDetector():
         boxes - a list of lists of bounding boxes. Each nested list is a bounding box in the form of [x1, y1, x2, y2] 
         where (x1, y1) and (x2, y2) are the top left and bottom right coordinate respectively. The order of bounding boxes in the list is from left to right in the image.
         '''
-        mask_img = self.segment_img(img)
+        mask_img = self.segment_image(img)
         contours = get_contour(mask_img)
         cprop, boxes = process_props(contours)
         return boxes
