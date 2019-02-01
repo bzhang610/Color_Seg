@@ -40,7 +40,7 @@ class BarrelDetector():
         result = np.dot(x,w)
         y_pred = (result>=0) * 2 - 1
         mask_img = y_pred.reshape(img.shape[0],img.shape[1]) # reshape back to 2D image dimensions
-        return new_mask_img
+        return mask_img
 
     def get_bounding_box(self, img):
         '''
