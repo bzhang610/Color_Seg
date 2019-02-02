@@ -98,14 +98,14 @@ def process_props(contours):
         Ars = -prop_sort[:,0]
         idxs = Ars.argsort()
     sorted_prop = prop_sort[idxs]
-    top_area = sorted_prop[:2] 
+    top_area = sorted_prop[:3] 
     result = []
     bboxs = []
     #max_area = top_area[0][0]
     for i in range(top_area.shape[0]):
         target = top_area[i]
         orig_idx = int(target[3])
-        if target[1] >= 0.8 and target[2] >= 0.94: #area percentage >0.7 and l2 >= 0.93
+        if target[1] >= 0.75 and target[2] >= 0.94: #area percentage >0.7 and l2 >= 0.93
             result.append(target)
             y1,x1,y2,x2 = all_props[orig_idx][0].bbox
             bboxs.append([x1,y1,x2,y2])
