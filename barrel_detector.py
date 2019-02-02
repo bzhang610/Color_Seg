@@ -112,7 +112,8 @@ def process_props(contours):
         if target[1] >= 0.75 and target[2] >= 0.94: # filter by area ratio >0.75 and l2 >= 0.94
             result.append(target)
             y1,x1,y2,x2 = all_props[orig_idx][0].bbox
-            bboxs.append([x1,y1,x2,y2])
+            if max((x2-x1)/(y2-y1), (y2-y1)/(x2-x1)) < 3:
+                bboxs.append([x1,y1,x2,y2])
     return result,bboxs    
 
 
