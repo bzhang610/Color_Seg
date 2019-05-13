@@ -1,4 +1,4 @@
 # Color segmentation and Shape Detector
-labeling.py - hand label regions in images  
-barrel_detector.py - main function  
+labeling.py - For hand labeling regions in images used in training  
+barrel_detector.py - Detects barrel of a given color labeled in training images
 Project1.ipynb - Jupyter Notebook for training and result display  
